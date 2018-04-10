@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DJPhotoBrowserDefine.h"
 
 typedef void (^photoViewSingleTapBlock)(UITapGestureRecognizer * _Nonnull recognizer);
 

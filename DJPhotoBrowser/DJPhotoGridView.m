@@ -232,7 +232,7 @@
 
 - (void)buttonClick:(UIControl *)button
 {
-    //启动图片浏览器
+    // 启动图片浏览器
     DJPhotoBrowser *browser = [[DJPhotoBrowser alloc] init];
     browser.sourceImagesContainerView = self; // 原图的父控件
     browser.dataSource = self;

@@ -10,6 +10,9 @@
 #import "DJPhotoGridView.h"
 #import "DJPhotoItem.h"
 
+#import "SDWebImageCodersManager.h"
+#import "SDWebImageGIFCoder.h"
+
 @interface ViewController ()
 <
     UITableViewDelegate,
@@ -34,6 +37,9 @@
     
     self.title = @"PhotoBrowser";
     
+    // 如果想要新版本SDWebImage支持gif动画显示，需要加载GIFCoder
+    [[SDWebImageCodersManager sharedInstance] addCoder:[SDWebImageGIFCoder sharedCoder]];
+
     self.srcStringArray = @[
                         @"http://ww2.sinaimg.cn/thumbnail/9ecab84ejw1emgd5nd6eaj20c80c8q4a.jpg",
                         @"http://ww2.sinaimg.cn/thumbnail/642beb18gw1ep3629gfm0g206o050b2a.gif",

@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DJPhotoBrowserDefine.h"
 
 @protocol DJPhotoBrowserDataSource;
 @protocol DJPhotoBrowserDelegate;

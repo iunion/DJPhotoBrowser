@@ -340,7 +340,7 @@
     
     NSUInteger leftIndex = (index==0) ? 0 : index-1;
     NSUInteger rightIndex = (index+1>=self.imageCount) ? self.imageCount-1 : index+1;
-    for (NSUInteger i = leftIndex; i < rightIndex; i++)
+    for (NSUInteger i = leftIndex; i <= rightIndex; i++)
     {
         [self setupImageOfImageViewForIndex:i];
     }

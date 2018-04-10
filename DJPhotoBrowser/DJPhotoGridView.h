@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DJPhotoBrowserDefine.h"
 
 @class DJPhotoItem;
 @interface DJPhotoGridView : UIView
