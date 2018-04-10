@@ -419,6 +419,17 @@
     CGFloat placeImageSizeW = placeholderImage.size.width;
     CGFloat placeImageSizeH = placeholderImage.size.height;
     
+    if (placeImageSizeW == 0)
+    {
+        hasShowedFistView = YES;
+        
+        self.scrollView.hidden = NO;
+        self.indexLabel.hidden = NO;
+        self.saveButton.hidden = NO;
+        
+        return;
+    }
+
     CGRect targetTempRect = CGRectZero;
     CGFloat placeHolderH = (placeImageSizeH * UI_SCREEN_WIDTH)/placeImageSizeW;
     if (placeHolderH <= UI_SCREEN_HEIGHT)

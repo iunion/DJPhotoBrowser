@@ -33,7 +33,7 @@
 - (UIImage *)photoBrowser:(DJPhotoBrowser *)browser placeholderImageForIndex:(NSUInteger)index;
 
 @optional
-// 原图片控件映射到PhotoBrowser的坐标
+// 原图片控件映射到PhotoBrowser的坐标，需要在delegate中做convertRect
 - (CGRect)photoBrowser:(DJPhotoBrowser *)browser containerViewRectAtIndex:(NSUInteger)index;
 
 // 高清图片URL

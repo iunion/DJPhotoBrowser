@@ -44,6 +44,8 @@
 		5A8BF9B62074B6D50019DAB8 /* UIImage+MultiFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8BF9992074B6D40019DAB8 /* UIImage+MultiFormat.m */; };
 		5A8BF9B72074B6D50019DAB8 /* UIView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8BF99A2074B6D40019DAB8 /* UIView+WebCache.m */; };
 		5A8BF9BA2074B8E30019DAB8 /* DJPhotoBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8BF9B92074B8E30019DAB8 /* DJPhotoBrowser.m */; };
+		5A8BF9BD2074D5C70019DAB8 /* DJPhotoItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8BF9BC2074D5C70019DAB8 /* DJPhotoItem.m */; };
+		5A8BF9C02074D6CC0019DAB8 /* DJPhotoGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8BF9BF2074D6CC0019DAB8 /* DJPhotoGridView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +137,10 @@
 		5A8BF99A2074B6D40019DAB8 /* UIView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCache.m"; sourceTree = "<group>"; };
 		5A8BF9B82074B8E30019DAB8 /* DJPhotoBrowser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DJPhotoBrowser.h; sourceTree = "<group>"; };
 		5A8BF9B92074B8E30019DAB8 /* DJPhotoBrowser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DJPhotoBrowser.m; sourceTree = "<group>"; };
+		5A8BF9BB2074D5C70019DAB8 /* DJPhotoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DJPhotoItem.h; sourceTree = "<group>"; };
+		5A8BF9BC2074D5C70019DAB8 /* DJPhotoItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DJPhotoItem.m; sourceTree = "<group>"; };
+		5A8BF9BE2074D6CC0019DAB8 /* DJPhotoGridView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DJPhotoGridView.h; sourceTree = "<group>"; };
+		5A8BF9BF2074D6CC0019DAB8 /* DJPhotoGridView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DJPhotoGridView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +215,10 @@
 				5A8BF8A32074A5A00019DAB8 /* DJPhotoBrowserView.m */,
 				5A8BF8A52074A9430019DAB8 /* DJWaitingView.h */,
 				5A8BF8A62074A9430019DAB8 /* DJWaitingView.m */,
+				5A8BF9BB2074D5C70019DAB8 /* DJPhotoItem.h */,
+				5A8BF9BC2074D5C70019DAB8 /* DJPhotoItem.m */,
+				5A8BF9BE2074D6CC0019DAB8 /* DJPhotoGridView.h */,
+				5A8BF9BF2074D6CC0019DAB8 /* DJPhotoGridView.m */,
 			);
 			name = DJPhotoBrowser;
 			path = ../DJPhotoBrowser;
@@ -404,6 +414,7 @@
 				5A8BF9B52074B6D50019DAB8 /* UIImage+GIF.m in Sources */,
 				5A8BF9A62074B6D50019DAB8 /* NSImage+WebCache.m in Sources */,
 				5A8BF9AF2074B6D50019DAB8 /* SDAnimatedImageRep.m in Sources */,
+				5A8BF9C02074D6CC0019DAB8 /* DJPhotoGridView.m in Sources */,
 				5A8BF9AE2074B6D50019DAB8 /* SDWebImageWebPCoder.m in Sources */,
 				5A8BF9AD2074B6D50019DAB8 /* SDWebImagePrefetcher.m in Sources */,
 				5A8BF9B12074B6D50019DAB8 /* SDWebImageDownloader.m in Sources */,
@@ -416,6 +427,7 @@
 				5A8BF9A92074B6D50019DAB8 /* SDWebImageCodersManager.m in Sources */,
 				5A8BF9A12074B6D50019DAB8 /* SDWebImageCoderHelper.m in Sources */,
 				5A8BF9B22074B6D50019DAB8 /* UIImageView+HighlightedWebCache.m in Sources */,
+				5A8BF9BD2074D5C70019DAB8 /* DJPhotoItem.m in Sources */,
 				5A8BF9A52074B6D50019DAB8 /* NSData+ImageContentType.m in Sources */,
 				5A8BF9A02074B6D50019DAB8 /* UIImage+ForceDecode.m in Sources */,
 				5A8BF99D2074B6D50019DAB8 /* UIButton+WebCache.m in Sources */,
