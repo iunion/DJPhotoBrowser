@@ -325,6 +325,8 @@
             weakSelf.reloadButton.hidden = NO;
             return;
         }
+        
+        weakSelf.progress = 1.0f;
     }];
     
     [self setNeedsLayout];
