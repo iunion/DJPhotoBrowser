@@ -14,7 +14,7 @@
 
 #define DJPhotoGroupImageMaxCount   9
 
-#define DJPhotoGroupImageMargin     15.0f
+#define DJPhotoGroupImageMargin     8.0f
 #define DJPhotoGroupImageMaxWidth   280.0f
 #define DJPhotoGroupImage2or4Width  100.0f
 #define DJPhotoGroupImageWidth      80.0f
@@ -34,6 +34,59 @@
 @end
 
 @implementation DJPhotoGridView
+
++ (CGSize)photoGridViewSizeWith:(NSArray<DJPhotoItem *> *)photoItemArray
+{
+    CGSize size = CGSizeZero;
+    
+    CGFloat width = DJPhotoGroupImageWidth;
+    CGFloat height = DJPhotoGroupImageHeight;
+    
+    NSUInteger imageCount = photoItemArray.count;
+    NSUInteger perRowImageCount = 3;
+    if (imageCount == 2 || imageCount == 4)
+    {
+        perRowImageCount = 2;
+        width = DJPhotoGroupImage2or4Width;
+        height = DJPhotoGroupImage2or4Width;
+    }
+    NSUInteger totalRowCount = ceil((CGFloat)imageCount/(CGFloat)perRowImageCount);
+    
+    if (imageCount == 1)
+    {
+        DJPhotoItem *item = photoItemArray[0];
+        
+        CGFloat w = item.width;
+        CGFloat h = item.height;
+        if (w <= 0)
+        {
+            w = DJPhotoGroupImageWidth;
+        }
+        if (h <= 0)
+        {
+            h = DJPhotoGroupImageHeight;
+        }
+        
+        float scalex = DJPhotoGroupImageMaxWidth / w;
+        float scaley = DJPhotoGroupImageMaxWidth / h;
+        float scale = MAX(scalex, scaley);
+        if (scale > 1.0f)
+        {
+            scale = 1.0f;
+        }
+        
+        size = CGSizeMake(w*scale, h*scale);
+    }
+    else
+    {
+        CGFloat swidth = perRowImageCount * (width + DJPhotoGroupImageMargin) - DJPhotoGroupImageMargin;
+        CGFloat sheight = totalRowCount * (height + DJPhotoGroupImageMargin) - DJPhotoGroupImageMargin;
+        
+        size = CGSizeMake(swidth, sheight);
+    }
+    
+    return size;
+}
 
 - (instancetype)initWithFrame:(CGRect)aRect
 {
@@ -152,8 +205,9 @@
         UIControl *btn = imageView.subviews[0];
         btn.frame = imageView.bounds;
         
-        //self.bounds = imageView.bounds;
-        self.frame = CGRectMake(10, 10, item.width*scale, item.height*scale);
+        CGRect frame = self.frame;
+        frame.size = CGSizeMake(w*scale, h*scale);
+        self.frame = frame;
     }
     else
     {
@@ -170,8 +224,9 @@
         CGFloat swidth = perRowImageCount * (width + DJPhotoGroupImageMargin) - DJPhotoGroupImageMargin;
         CGFloat sheight = totalRowCount * (height + DJPhotoGroupImageMargin) - DJPhotoGroupImageMargin;
 
-        //self.bounds = CGRectMake(0, 0, swidth, sheight);
-        self.frame = CGRectMake(10, 10, swidth, sheight);
+        CGRect frame = self.frame;
+        frame.size = CGSizeMake(swidth, sheight);
+        self.frame = frame;
     }
 }
 

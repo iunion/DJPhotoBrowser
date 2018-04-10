@@ -13,4 +13,6 @@
 
 @property (nonatomic, strong) NSArray<DJPhotoItem *> *photoItemArray;
 
++ (CGSize)photoGridViewSizeWith:(NSArray<DJPhotoItem *> *)photoItemArray;
+
 @end

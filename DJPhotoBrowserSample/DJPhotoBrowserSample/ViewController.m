@@ -20,6 +20,10 @@
 
 @property (nonatomic, strong) UITableView *tableView;
 
+@property (nonatomic, strong) NSMutableArray *tableDataArray;
+
+@property (nonatomic, strong) NSMutableArray *cellHeightArray;
+
 @end
 
 @implementation ViewController
@@ -42,6 +46,29 @@
                         @"http://ww4.sinaimg.cn/thumbnail/677febf5gw1erma1g5xd0j20k0esa7wj.jpg"
                         ];
     
+    self.tableDataArray = [NSMutableArray arrayWithCapacity:0];
+    self.cellHeightArray = [NSMutableArray arrayWithCapacity:0];
+    for (NSUInteger i=0; i<20; i++)
+    {
+        NSMutableArray *temp = [NSMutableArray array];
+        [_srcStringArray enumerateObjectsUsingBlock:^(NSString *src, NSUInteger idx, BOOL *stop) {
+            DJPhotoItem *item = [[DJPhotoItem alloc] init];
+            item.thumbnailImage = src;
+            item.width = 200;
+            item.height = 280;
+            [temp addObject:item];
+            NSUInteger index = i%9;
+            if (idx == index)
+            {
+                *stop = YES;
+            }
+        }];
+        
+        [self.tableDataArray addObject:temp];
+        CGSize size = [DJPhotoGridView photoGridViewSizeWith:temp];
+        [self.cellHeightArray addObject:@(size.height)];
+    }
+    
     self.tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
@@ -59,7 +86,8 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 300;
+    CGFloat height = [[self.cellHeightArray objectAtIndex:indexPath.row] doubleValue] + 20;
+    return height;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -69,7 +97,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 20;
+    return self.tableDataArray.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -80,29 +108,29 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         DJPhotoGridView *photoGroup = [[DJPhotoGridView alloc] init];
-        //photoGroup.frame = CGRectMake(10, 10, 100, 100);
+        photoGroup.frame = CGRectMake(10, 10, 100, 100);
         photoGroup.tag = 100;
         [cell.contentView addSubview:photoGroup];
     }
     
     DJPhotoGridView *photoGroup = [cell viewWithTag:100];
     
-    NSMutableArray *temp = [NSMutableArray array];
-    [_srcStringArray enumerateObjectsUsingBlock:^(NSString *src, NSUInteger idx, BOOL *stop) {
-        DJPhotoItem *item = [[DJPhotoItem alloc] init];
-        item.thumbnailImage = src;
-        item.width = 200;
-        item.height = 280;
-        [temp addObject:item];
-        NSUInteger index=indexPath.row%9;
-        if (idx == index)
-        {
-            *stop = YES;
-        }
-    }];
-    
-    photoGroup.photoItemArray = [temp copy];
-    
+//    NSMutableArray *temp = [NSMutableArray array];
+//    [_srcStringArray enumerateObjectsUsingBlock:^(NSString *src, NSUInteger idx, BOOL *stop) {
+//        DJPhotoItem *item = [[DJPhotoItem alloc] init];
+//        item.thumbnailImage = src;
+//        item.width = 200;
+//        item.height = 280;
+//        [temp addObject:item];
+//        NSUInteger index=indexPath.row%9;
+//        if (idx == index)
+//        {
+//            *stop = YES;
+//        }
+//    }];
+//
+//    photoGroup.photoItemArray = [temp copy];
+    photoGroup.photoItemArray = [self.tableDataArray objectAtIndex:indexPath.row];
     return cell;
 }
 
