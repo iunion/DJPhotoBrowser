@@ -9,6 +9,9 @@
 #import "DJPhotoBrowser.h"
 #import "DJPhotoBrowserView.h"
 
+// 只能奇数 3
+#define PhotoBrowser_CacheCount       3
+
 @interface DJPhotoBrowser ()
 <
     UIScrollViewDelegate
@@ -18,7 +21,16 @@
     BOOL hasShowedFistView;
     
     UIActivityIndicatorView *saveIndicatorView;
+    
+    // 第一张图片在cache中的位置index，初始化后是固定值
+    NSInteger cacheStartIndex;
 }
+
+// 图片缓存池大小
+@property (nonatomic, assign) NSInteger cacheSize;
+// 用于计算图片缓存中的图片在图片列表中的位置index
+// currentCacheImageIndex = currentImageIndex+cacheStartIndex
+@property (nonatomic, assign) NSInteger currentCacheImageIndex;
 
 @property (nonatomic, assign) NSUInteger imageCount;
 @property (nonatomic, assign) NSUInteger currentImageIndex;
@@ -46,6 +58,10 @@
     if (self)
     {
         self.backgroundColor = DJPhotoBrowserBackgrounColor;
+        
+        self.cacheSize = PhotoBrowser_CacheCount;
+        // 第一张图片在缓存中的位置
+        cacheStartIndex = self.cacheSize/2;
     }
     return self;
 }
@@ -75,10 +91,17 @@
         {
             if (self.scrollView)
             {
-                NSUInteger index = fabs(self.scrollView.contentOffset.x) / self.scrollView.bounds.size.width;
-                if (currentImageIndex == index)
+                if (self.infiniteScrollView)
                 {
                     [self.delegate photoBrowser:self didScrollToIndex:currentImageIndex];
+                }
+                else
+                {
+                    NSUInteger index = fabs(self.scrollView.contentOffset.x) / self.scrollView.bounds.size.width;
+                    if (currentImageIndex == index)
+                    {
+                        [self.delegate photoBrowser:self didScrollToIndex:currentImageIndex];
+                    }
                 }
             }
         }
@@ -113,21 +136,43 @@
     [self addSubview:scrollView];
     self.scrollView = scrollView;
     
-    for (NSInteger i = 0; i < self.imageCount; i++)
+    if (self.infiniteScrollView)
     {
-        DJPhotoBrowserView *view = [[DJPhotoBrowserView alloc] init];
-        view.imageview.tag = i;
+        self.currentCacheImageIndex = self.currentImageIndex + cacheStartIndex;
         
-        // 设置单击事件
-        __weak __typeof(self)weakSelf = self;
-        view.singleTapBlock = ^(UITapGestureRecognizer *recognizer){
-            [weakSelf orientationToHidePhotoBrowser:recognizer];
-        };
+        for (NSInteger i = 0; i < self.cacheSize; i++)
+        {
+            DJPhotoBrowserView *view = [[DJPhotoBrowserView alloc] init];
+            
+            // 设置单击事件
+            __weak __typeof(self)weakSelf = self;
+            view.singleTapBlock = ^(UITapGestureRecognizer *recognizer){
+                [weakSelf orientationToHidePhotoBrowser:recognizer];
+            };
+            
+            [self.scrollView addSubview:view];
+        }
         
-        [self.scrollView addSubview:view];
+        [self refreshScrollView];
     }
-    
-    [self setupImageOfImageViewForIndex:self.currentImageIndex];
+    else
+    {
+        for (NSInteger i = 0; i < self.imageCount; i++)
+        {
+            DJPhotoBrowserView *view = [[DJPhotoBrowserView alloc] init];
+            //view.imageview.tag = i;
+            
+            // 设置单击事件
+            __weak __typeof(self)weakSelf = self;
+            view.singleTapBlock = ^(UITapGestureRecognizer *recognizer){
+                [weakSelf orientationToHidePhotoBrowser:recognizer];
+            };
+            
+            [self.scrollView addSubview:view];
+        }
+        
+        [self setupImageOfImageViewForIndex:self.currentImageIndex];
+    }
 }
 
 - (void)setupToolbars
@@ -197,31 +242,18 @@
 #pragma mark -
 #pragma mark actions
 
-// 加载图片
-- (void)setupImageOfImageViewForIndex:(NSUInteger)index
-{
-    DJPhotoBrowserView *view = self.scrollView.subviews[index];
-    if (view.progress)
-    {
-        return;
-    }
-    
-    UIImage *placeholderImage = [self placeholderImageForIndex:index];
-    
-    if ([self highQualityImageURLForIndex:index])
-    {
-        [view setImageWithURL:[self highQualityImageURLForIndex:index] placeholderImage:placeholderImage];
-    }
-    else
-    {
-        view.imageview.image = placeholderImage;
-    }
-}
-
 #pragma mark 保存图像
 - (void)saveImage
 {
-    DJPhotoBrowserView *currentView = self.scrollView.subviews[self.currentImageIndex];
+    DJPhotoBrowserView *currentView = nil;
+    if (self.infiniteScrollView)
+    {
+        currentView = self.scrollView.subviews[cacheStartIndex];
+    }
+    else
+    {
+        currentView = self.scrollView.subviews[self.currentImageIndex];
+    }
     
     UIImageWriteToSavedPhotosAlbum(currentView.imageview.image, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
     
@@ -273,7 +305,15 @@
     
     //NSLog(@"onDeviceOrientationChange");
     
-    DJPhotoBrowserView *currentView = self.scrollView.subviews[self.currentImageIndex];
+    DJPhotoBrowserView *currentView = nil;
+    if (self.infiniteScrollView)
+    {
+        currentView = self.scrollView.subviews[cacheStartIndex];
+    }
+    else
+    {
+        currentView = self.scrollView.subviews[self.currentImageIndex];
+    }
     currentView.imageScale = 1.0f;
     
     CGRect screenBounds = [UIScreen mainScreen].bounds;
@@ -300,6 +340,10 @@
     }
 }
 
+
+#pragma mark -
+#pragma mark layoutSubviews
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -319,8 +363,17 @@
     }];
     
     //self.scrollView.contentSize = CGSizeMake(self.scrollView.subviews.count * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
-    self.scrollView.contentSize = CGSizeMake(self.imageCount * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
-    self.scrollView.contentOffset = CGPointMake(self.currentImageIndex * self.scrollView.frame.size.width, 0);
+    if (self.infiniteScrollView)
+    {
+        self.scrollView.contentSize = CGSizeMake(self.cacheSize * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
+        
+        self.scrollView.contentOffset = CGPointMake(cacheStartIndex * self.scrollView.frame.size.width, 0);
+    }
+    else
+    {
+        self.scrollView.contentSize = CGSizeMake(self.imageCount * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
+        self.scrollView.contentOffset = CGPointMake(self.currentImageIndex * self.scrollView.frame.size.width, 0);
+    }
     
     if (!hasShowedFistView)
     {
@@ -336,13 +389,36 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    NSUInteger index = fabs(scrollView.contentOffset.x + scrollView.bounds.size.width * 0.5) / scrollView.bounds.size.width;
-    
-    NSUInteger leftIndex = (index==0) ? 0 : index-1;
-    NSUInteger rightIndex = (index+1>=self.imageCount) ? self.imageCount-1 : index+1;
-    for (NSUInteger i = leftIndex; i <= rightIndex; i++)
+    if (self.infiniteScrollView)
     {
-        [self setupImageOfImageViewForIndex:i];
+        CGFloat x = scrollView.contentOffset.x;
+        
+        // 往后翻一张
+        if (x >= (cacheStartIndex+1) * scrollView.frame.size.width)
+        {
+            self.currentCacheImageIndex = [self getCurrentCacheImageIndex:self.currentCacheImageIndex+1];
+            //self.currentImageIndex = self.currentCacheImageIndex-cacheStartIndex;
+            [self refreshScrollView];
+        }
+        
+        // 往前翻一张
+        if (x <= (cacheStartIndex-1) * scrollView.frame.size.width)
+        {
+            self.currentCacheImageIndex = [self getCurrentCacheImageIndex:self.currentCacheImageIndex-1];
+            //self.currentImageIndex = self.currentCacheImageIndex-cacheStartIndex;
+            [self refreshScrollView];
+        }
+    }
+    else
+    {
+        NSUInteger index = fabs(scrollView.contentOffset.x + scrollView.bounds.size.width * 0.5) / scrollView.bounds.size.width;
+        
+        NSUInteger leftIndex = (index==0) ? 0 : index-1;
+        NSUInteger rightIndex = (index+1>=self.imageCount) ? self.imageCount-1 : index+1;
+        for (NSUInteger i = leftIndex; i <= rightIndex; i++)
+        {
+            [self setupImageOfImageViewForIndex:i];
+        }
     }
 }
 
@@ -363,30 +439,137 @@
 // scrollview结束滚动调用
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    //NSLog(@"scrollViewDidEndDecelerating");
-    NSUInteger index = fabs(scrollView.contentOffset.x) / scrollView.bounds.size.width;
-    
-    // 设置当前下标
-    self.currentImageIndex = index;
-    
-    // 将不是当前imageview的缩放全部还原
-    NSUInteger leftIndex = (index==0) ? 0 : index-1;
-    NSUInteger rightIndex = (index+1>=self.imageCount) ? self.imageCount-1 : index+1;
-    if (leftIndex != index)
+    NSLog(@"scrollViewDidEndDecelerating");
+    if (self.infiniteScrollView)
     {
-        DJPhotoBrowserView *view = scrollView.subviews[leftIndex];
-        view.imageScale = 1.0f;
+        self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width*cacheStartIndex, 0);
+        
+        // 设置当前图片index
+        self.currentImageIndex = self.currentCacheImageIndex-cacheStartIndex;
+        
+        // 将不是当前imageview的缩放全部还原
+        for (NSInteger i = 0; i < self.cacheSize; i++)
+        {
+            if (i == self.currentCacheImageIndex)
+            {
+                continue;
+            }
+            DJPhotoBrowserView *view = scrollView.subviews[i];
+            view.imageScale = 1.0f;
+        }
     }
-    if (rightIndex != index)
+    else
     {
-        DJPhotoBrowserView *view = scrollView.subviews[rightIndex];
-        view.imageScale = 1.0f;
+        NSUInteger index = fabs(scrollView.contentOffset.x) / scrollView.bounds.size.width;
+        
+        // 设置当前图片index
+        self.currentImageIndex = index;
+        
+        // 将不是当前imageview的缩放全部还原
+        NSUInteger leftIndex = (index==0) ? 0 : index-1;
+        NSUInteger rightIndex = (index+1>=self.imageCount) ? self.imageCount-1 : index+1;
+        if (leftIndex != index)
+        {
+            DJPhotoBrowserView *view = scrollView.subviews[leftIndex];
+            view.imageScale = 1.0f;
+        }
+        if (rightIndex != index)
+        {
+            DJPhotoBrowserView *view = scrollView.subviews[rightIndex];
+            view.imageScale = 1.0f;
+        }
     }
 }
+
+
+#pragma mark -
+#pragma mark fresh image
+
+// 加载图片
+- (void)setupImageOfImageViewForIndex:(NSUInteger)index
+{
+    DJPhotoBrowserView *view = self.scrollView.subviews[index];
+    if (view.progress)
+    {
+        return;
+    }
+    
+    UIImage *placeholderImage = [self placeholderImageForIndex:index];
+    
+    if ([self highQualityImageURLForIndex:index])
+    {
+        [view setImageWithURL:[self highQualityImageURLForIndex:index] placeholderImage:placeholderImage];
+    }
+    else
+    {
+        view.imageview.image = placeholderImage;
+    }
+}
+
+#pragma mark for infiniteScrollView
+
+// 转换CacheImageIndex
+- (NSInteger)getCurrentCacheImageIndex:(NSInteger)index
+{
+    if (self.imageCount == 1)
+    {
+        return cacheStartIndex;
+    }
+    
+    NSInteger cacheImageIndex = cacheStartIndex + (((NSInteger)self.imageCount+index-cacheStartIndex) % (NSInteger)self.imageCount);
+    return cacheImageIndex;
+}
+
+- (NSArray *)getDisplayImageIndexsWithImageCacheIndex:(NSInteger)imageCacheIndex
+{
+    if (self.imageCount == 0)
+    {
+        return  nil;
+    }
+    
+    NSMutableArray *indexs = [NSMutableArray arrayWithCapacity:0];
+    for (NSInteger i=imageCacheIndex-cacheStartIndex; i<=imageCacheIndex+cacheStartIndex; i++)
+    {
+        // cacheIndex转为imageIndex
+        NSInteger index = [self getCurrentCacheImageIndex:i]-cacheStartIndex;
+        [indexs addObject:@(index)];
+    }
+    
+    return indexs;
+}
+
+- (void)refreshScrollView
+{
+    NSArray *indexs = [self getDisplayImageIndexsWithImageCacheIndex:self.currentCacheImageIndex];
+    for (NSUInteger i = 0; i < self.cacheSize; i++)
+    {
+        DJPhotoBrowserView *view = self.scrollView.subviews[i];
+        NSUInteger imageIndex = [indexs[i] integerValue];
+        UIImage *placeholderImage = [self placeholderImageForIndex:imageIndex];
+        NSURL *url = [self highQualityImageURLForIndex:imageIndex];
+        if (url)
+        {
+            [view setImageWithURL:url placeholderImage:placeholderImage];
+        }
+        else
+        {
+            view.imageview.image = placeholderImage;
+        }
+    }
+    
+    self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width*cacheStartIndex, 0);
+}
+
+
+#pragma mark -
+#pragma mark show
 
 - (void)showFirstImage
 {
     CGRect rect = CGRectZero;
+    
+    // 保存索引label的hidden状态
+    BOOL indexLabelHidden = self.indexLabel.hidden;
     
     if ([self.dataSource respondsToSelector:@selector(photoBrowser:containerViewRectAtIndex:)])
     {
@@ -404,7 +587,7 @@
         hasShowedFistView = YES;
         
         self.scrollView.hidden = NO;
-        self.indexLabel.hidden = NO;
+        self.indexLabel.hidden = indexLabelHidden;
         self.saveButton.hidden = NO;
         
         return;
@@ -424,7 +607,7 @@
         hasShowedFistView = YES;
         
         self.scrollView.hidden = NO;
-        self.indexLabel.hidden = NO;
+        self.indexLabel.hidden = indexLabelHidden;
         self.saveButton.hidden = NO;
         
         return;
@@ -458,7 +641,7 @@
         }
         
         self.scrollView.hidden = NO;
-        self.indexLabel.hidden = NO;
+        self.indexLabel.hidden = indexLabelHidden;
         self.saveButton.hidden = NO;
         
         hasShowedFistView = YES;
@@ -517,12 +700,21 @@
     [self setupScrollView];
 }
 
-#pragma mark 单击
 
+#pragma mark -
+#pragma mark hide
+// 单击
 - (void)orientationToHidePhotoBrowser:(UITapGestureRecognizer *)recognizer
 {
-    DJPhotoBrowserView *currentView = self.scrollView.subviews[self.currentImageIndex];
-    
+    DJPhotoBrowserView *currentView = nil;
+    if (self.infiniteScrollView)
+    {
+        currentView = self.scrollView.subviews[cacheStartIndex];
+    }
+    else
+    {
+        currentView = self.scrollView.subviews[self.currentImageIndex];
+    }
     currentView.imageScale = 1.0f;
     
     self.indexLabel.hidden = YES;
@@ -553,7 +745,16 @@
     NSLog(@"hidePhotoBrowser");
     
     DJPhotoBrowserView *view = (DJPhotoBrowserView *)recognizer.view;
-    NSUInteger currentIndex = view.imageview.tag;
+    
+    NSUInteger currentIndex = self.currentImageIndex;
+//    if (self.infiniteScrollView)
+//    {
+//        currentIndex = self.currentImageIndex;
+//    }
+//    else
+//    {
+//        currentIndex = view.imageview.tag;
+//    }
     
     CGRect rect = CGRectZero;
     if ([self.dataSource respondsToSelector:@selector(photoBrowser:containerViewRectAtIndex:)])

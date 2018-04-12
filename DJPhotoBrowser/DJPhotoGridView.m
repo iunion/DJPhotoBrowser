@@ -237,6 +237,7 @@
     browser.sourceImagesContainerView = self; // 原图的父控件
     browser.dataSource = self;
     browser.delegate = self;
+    browser.infiniteScrollView = YES;
     [browser showWithImageCount:self.photoItemArray.count imageIndex:button.tag];
     self.photoBrowser = browser;
 }

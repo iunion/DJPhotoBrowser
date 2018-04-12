@@ -141,6 +141,7 @@
 		5A8BF9BC2074D5C70019DAB8 /* DJPhotoItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DJPhotoItem.m; sourceTree = "<group>"; };
 		5A8BF9BE2074D6CC0019DAB8 /* DJPhotoGridView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DJPhotoGridView.h; sourceTree = "<group>"; };
 		5A8BF9BF2074D6CC0019DAB8 /* DJPhotoGridView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DJPhotoGridView.m; sourceTree = "<group>"; };
+		5ADB981B207E1379002BD8F5 /* DJPhotoBrowserProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DJPhotoBrowserProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +210,7 @@
 			children = (
 				5A8BF8A92074B2820019DAB8 /* Vendors */,
 				5A8BF8A12074A37A0019DAB8 /* DJPhotoBrowserDefine.h */,
+				5ADB981B207E1379002BD8F5 /* DJPhotoBrowserProtocol.h */,
 				5A8BF9B82074B8E30019DAB8 /* DJPhotoBrowser.h */,
 				5A8BF9B92074B8E30019DAB8 /* DJPhotoBrowser.m */,
 				5A8BF8A22074A5A00019DAB8 /* DJPhotoBrowserView.h */,

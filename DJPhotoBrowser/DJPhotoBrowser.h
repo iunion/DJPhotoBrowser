@@ -8,18 +8,22 @@
 
 #import <UIKit/UIKit.h>
 #import "DJPhotoBrowserDefine.h"
+#import "DJPhotoBrowserProtocol.h"
 
-@protocol DJPhotoBrowserDataSource;
-@protocol DJPhotoBrowserDelegate;
 @interface DJPhotoBrowser : UIView
 
 @property (nonatomic, weak) id<DJPhotoBrowserDataSource> dataSource;
 @property (nonatomic, weak) id<DJPhotoBrowserDelegate> delegate;
 
+// 原图片所在View控件，用于图片弹出收回动画
 @property (nonatomic, weak) UIView *sourceImagesContainerView;
 
+// 图片个数
 @property (nonatomic, assign, readonly) NSUInteger imageCount;
+// 当前显示的图片index
 @property (nonatomic, assign, readonly) NSUInteger currentImageIndex;
+// 是否无限循环显示图片
+@property (nonatomic, assign) BOOL infiniteScrollView;
 
 - (void)showWithImageCount:(NSUInteger)imageCount imageIndex:(NSUInteger)imageIndex;
 
@@ -27,27 +31,4 @@
 
 @end
 
-@protocol DJPhotoBrowserDataSource <NSObject>
 
-@required
-// 预览图片
-- (UIImage *)photoBrowser:(DJPhotoBrowser *)browser placeholderImageForIndex:(NSUInteger)index;
-
-@optional
-// 原图片控件映射到PhotoBrowser的坐标，需要在delegate中做convertRect
-- (CGRect)photoBrowser:(DJPhotoBrowser *)browser containerViewRectAtIndex:(NSUInteger)index;
-
-// 高清图片URL
-- (NSURL *)photoBrowser:(DJPhotoBrowser *)browser highQualityImageURLForIndex:(NSUInteger)index;
-
-@end
-
-@protocol DJPhotoBrowserDelegate <NSObject>
-
-@optional
-// 滚动
-- (void)photoBrowser:(DJPhotoBrowser *)browser didScrollToIndex:(NSUInteger)index;
-// 删除图片
-- (void)photoBrowser:(DJPhotoBrowser *)browser deleteImageAtIndex:(NSUInteger)index;
-
-@end
