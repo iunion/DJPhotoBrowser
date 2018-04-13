@@ -14,6 +14,12 @@
 
 @property (nonatomic, strong) NSArray<DJPhotoItem *> *photoItemArray;
 
+@property (nonatomic, assign, readonly) BOOL hasGif;
+@property (nonatomic, assign, readonly) BOOL isPlayGif;
+
 + (CGSize)photoGridViewSizeWith:(NSArray<DJPhotoItem *> *)photoItemArray;
+
+- (void)gifPlay;
+- (void)gifPause;
 
 @end

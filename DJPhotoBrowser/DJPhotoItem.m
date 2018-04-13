@@ -10,17 +10,24 @@
 
 @interface DJPhotoItem ()
 
-@property (nonatomic, assign) BOOL isGif;
-@property (nonatomic, assign) BOOL isDown;
-
 @end
 
 @implementation DJPhotoItem
 
-- (void)setDownLoadIsGif:(BOOL)isGif
+- (void)setGifDuration:(NSTimeInterval)gifDuration
 {
-    self.isDown = YES;
-    self.isGif = isGif;
+//    if (!self.isGif)
+//    {
+//        _gifDuration = 0;
+//        return;
+//    }
+
+    if (gifDuration <= 0)
+    {
+        gifDuration = 1.0f;
+    }
+
+    _gifDuration = gifDuration;
 }
 
 @end

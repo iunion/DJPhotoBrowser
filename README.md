@@ -2,6 +2,7 @@ DJPhotoBrowser
 ==============
 
 DJPhotoBrowser是一个简单的图片浏览器，可以无限循环展示图片，并制作了九宫格图片展示. <br/>
+模仿微博信息列表动态循环展示gif动图. <br/>
 
 * 支持图片弹出和隐藏动画。<br/>
 -- Support the show and hide animation effects
@@ -22,6 +23,9 @@ DJPhotoBrowser是一个简单的图片浏览器，可以无限循环展示图片
 
 图片缩放移动 <br/>
 ![image](/photoBrowser2.gif)
+
+模仿微博 动态循环展示gif动图<br/>
+![image](/photoBrowser3.gif)
 
 ## Requirements
 
@@ -58,6 +62,12 @@ All source code is licensed under the [MIT License](https://github.com/iunion/DJ
 - `DJPhotoItem`
 
 ## Usage
+
+### 注意，如果使用SDWebImage下载图片请自行添加以下代码
+``` objective-c
+// 如果想要新版本SDWebImage支持gif动画显示，需要加载GIFCoder
+[[SDWebImageCodersManager sharedInstance] addCoder:[SDWebImageGIFCoder sharedCoder]];
+```
 
 ### DJPhotoBrowser
 ``` objective-c

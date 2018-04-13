@@ -16,9 +16,9 @@
 @property (nonatomic, assign) CGFloat width;
 @property (nonatomic, assign) CGFloat height;
 
-@property (nonatomic, assign, readonly) BOOL isGif;
-@property (nonatomic, assign, readonly) BOOL isDown;
-
-- (void)setDownLoadIsGif:(BOOL)isGif;
+@property (nonatomic, assign) BOOL isGif;
+@property (nonatomic, assign) NSTimeInterval gifDuration;
+@property (nonatomic, assign) BOOL isDown;
+@property (nonatomic, assign) NSUInteger index;
 
 @end
