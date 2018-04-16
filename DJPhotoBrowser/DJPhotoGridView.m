@@ -169,27 +169,7 @@
         __weak DJPhotoItem *item = photoItemArray[idx];
         __weak typeof(self) weakSelf = self;
         [imageView sd_setImageWithURL:[NSURL URLWithString:obj.thumbnailImage
-                                      ] placeholderImage:[UIImage imageNamed:@"whiteplaceholder"] options:SDWebImageLowPriority|SDWebImageRetryFailed completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-            if (image)
-            {
-                if (item.isGif)
-                {
-                    [[SDWebImageManager sharedManager] loadImageWithURL:[self photoBrowser:nil highQualityImageURLForIndex:idx] options:SDWebImageLowPriority|SDWebImageRetryFailed progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                        if (image)
-                        {
-                            item.isDown = YES;
-                            item.gifDuration = image.duration;
-                        }
-                    }];
-                    
-                    if (item)
-                    {
-                        item.index = idx;
-                        [weakSelf.previewGifItemArray addObject:item];
-                    }
-                }
-            }
-        }];
+                                      ] placeholderImage:[UIImage imageNamed:@"whiteplaceholder"] options:SDWebImageLowPriority|SDWebImageRetryFailed completed:nil];
         
         UIControl *btn = [[UIControl alloc] init];
         btn.exclusiveTouch = YES;
@@ -204,13 +184,30 @@
         gifLabel.textColor = [UIColor whiteColor];
         gifLabel.text = @"动图";
         gifLabel.font = [UIFont boldSystemFontOfSize:10.0f];
-        gifLabel.backgroundColor = [UIColor colorWithRed:0.1f green:0.1f blue:0.8f alpha:0.8f];
+        gifLabel.backgroundColor = [UIColor colorWithRed:0.6f green:0.6f blue:0.6f alpha:0.8f];
+        //gifLabel.backgroundColor = [UIColor colorWithRed:0.1f green:0.1f blue:0.8f alpha:0.8f];
         gifLabel.bounds = CGRectMake(0, 0, 30, 16);
         gifLabel.layer.cornerRadius = 3.0f;
         gifLabel.clipsToBounds = YES;
         [btn addSubview:gifLabel];
         [self.imageGifLabelArray addObject:gifLabel];
         gifLabel.hidden = !item.isGif;
+
+        if (item.isGif)
+        {
+            item.index = idx;
+            [weakSelf.previewGifItemArray addObject:item];
+            
+            [[SDWebImageManager sharedManager] loadImageWithURL:[self photoBrowser:nil highQualityImageURLForIndex:idx] options:SDWebImageLowPriority|SDWebImageRetryFailed progress:nil completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                if (image)
+                {
+                    item.isDown = YES;
+                    item.gifDuration = image.duration;
+                    UILabel *gifLabel = self.imageGifLabelArray[item.index];
+                    gifLabel.backgroundColor = [UIColor colorWithRed:0.1f green:0.1f blue:0.8f alpha:0.8f];
+                }
+            }];
+        }
 
         [self addSubview:imageView];
     }];
@@ -324,11 +321,47 @@
         self.playGifTimer = nil;
     }
     
-    [self gifPause];
+    BOOL cyclePlay = self.isPlayGif;
     
-    self.playingGifIndex = (self.playingGifIndex+1) % self.previewGifItemArray.count;
-    DJPhotoItem *item = self.previewGifItemArray[self.playingGifIndex];
+    [self gifPause];
 
+    DJPhotoItem *item = nil;
+
+    if (self.playingGifIndex == -1)
+    {
+        self.playingGifIndex = 0;
+    }
+    
+    if (cyclePlay)
+    {
+        for (NSUInteger i=0; i<self.previewGifItemArray.count; i++)
+        {
+            self.playingGifIndex = (self.playingGifIndex+1) % self.previewGifItemArray.count;
+            item = self.previewGifItemArray[self.playingGifIndex];
+            if (item.isDown)
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (NSUInteger i=0; i<self.previewGifItemArray.count; i++)
+        {
+            item = self.previewGifItemArray[self.playingGifIndex];
+            if (item.isDown)
+            {
+                break;
+            }
+            self.playingGifIndex = (self.playingGifIndex+1) % self.previewGifItemArray.count;
+        }
+    }
+
+    if (!item)
+    {
+        return;
+    }
+    
     self.isPlayGif = YES;
     UIImageView *imageView = self.imageViewArray[item.index];
     [imageView sd_setImageWithURL:[self photoBrowser:nil highQualityImageURLForIndex:item.index] placeholderImage:[UIImage imageNamed:@"whiteplaceholder"] options:SDWebImageLowPriority|SDWebImageRetryFailed];
@@ -415,3 +448,4 @@
 
 
 @end
+
