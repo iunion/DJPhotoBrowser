@@ -305,10 +305,12 @@
     // 判断滚动方向
     if (scrollView.contentOffset.y>self.lastScrollViewContentOffsetY)
     {
+        // 向上拉
         self.isScrollDownward = YES;
     }
     else
     {
+        // 向下拉
         self.isScrollDownward = NO;
     }
     self.lastScrollViewContentOffsetY = scrollView.contentOffset.y;
@@ -322,7 +324,8 @@
 
         self.lastOrCurrentPlayIndex = lastOrCurrentPlayIndex;
         NSLog(@"lastOrCurrentPlayIndex: %@", @(lastOrCurrentPlayIndex));
-        
+        NSLog(@"isScrollDownward: %@", @(self.isScrollDownward));
+
         [self playCellWithIndex:self.lastOrCurrentPlayIndex];
     }
 }
@@ -331,6 +334,8 @@
 {
     __block NSInteger lastOrCurrentPlayIndex = self.lastOrCurrentPlayIndex;
     
+    // 当一个窗口内包含了首尾cell时，只有首个cell会触发动画
+    // 概率很小，后面注释代码简单解决一下但不完美
     if (self.tableView.contentOffset.y <= 0)
     {
         // 顶部
@@ -338,6 +343,48 @@
         DJPhotoGridView *photoGroup = [cell viewWithTag:100];
         if (photoGroup.hasGif)
         {
+#if 0
+            if (!isScrollDownward)
+            {
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:self.tableDataArray.count-1 inSection:0]];
+                NSArray *cellsArray = [self.tableView visibleCells];
+                if ([cellsArray indexOfObject:cell] != NSNotFound)
+                {
+                    DJPhotoGridView *photoGroup = [cell viewWithTag:100];
+                    if (photoGroup.hasGif)
+                    {
+                        CGRect rect = [photoGroup convertRect:photoGroup.bounds toView:self.view];
+                        
+                        // 顶部间隔
+                        CGFloat topSpacing = rect.origin.y;
+                        // 底部间隔
+                        CGFloat bottomSpacing = self.view.frame.size.height-rect.origin.y-rect.size.height;
+                        
+                        BOOL find = NO;
+                        if (isScrollDownward)
+                        {
+                            if ((topSpacing >= -rect.size.height/5) && (bottomSpacing >= -rect.size.height/3))
+                            {
+                                find = YES;
+                            }
+                        }
+                        else
+                        {
+                            if ((topSpacing >= -rect.size.height/3) && (bottomSpacing >= -rect.size.height/5))
+                            {
+                                find = YES;
+                            }
+                        }
+
+                        if (find)
+                        {
+                            lastOrCurrentPlayIndex = self.tableDataArray.count-1;
+                            return lastOrCurrentPlayIndex;
+                        }
+                    }
+                }
+            }
+#endif
             lastOrCurrentPlayIndex = 0;
             return lastOrCurrentPlayIndex;
         }
@@ -349,6 +396,48 @@
         DJPhotoGridView *photoGroup = [cell viewWithTag:100];
         if (photoGroup.hasGif)
         {
+#if 0
+            if (isScrollDownward)
+            {
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+                NSArray *cellsArray = [self.tableView visibleCells];
+                if ([cellsArray indexOfObject:cell] != NSNotFound)
+                {
+                    DJPhotoGridView *photoGroup = [cell viewWithTag:100];
+                    if (photoGroup.hasGif)
+                    {
+                        CGRect rect = [photoGroup convertRect:photoGroup.bounds toView:self.view];
+                        
+                        // 顶部间隔
+                        CGFloat topSpacing = rect.origin.y;
+                        // 底部间隔
+                        CGFloat bottomSpacing = self.view.frame.size.height-rect.origin.y-rect.size.height;
+                        
+                        BOOL find = NO;
+                        if (isScrollDownward)
+                        {
+                            if ((topSpacing >= -rect.size.height/5) && (bottomSpacing >= -rect.size.height/3))
+                            {
+                                find = YES;
+                            }
+                        }
+                        else
+                        {
+                            if ((topSpacing >= -rect.size.height/3) && (bottomSpacing >= -rect.size.height/5))
+                            {
+                                find = YES;
+                            }
+                        }
+                        
+                        if (find)
+                        {
+                            lastOrCurrentPlayIndex = 0;
+                            return lastOrCurrentPlayIndex;
+                        }
+                    }
+                }
+            }
+#endif
             lastOrCurrentPlayIndex = self.tableDataArray.count-1;
             return lastOrCurrentPlayIndex;
         }
