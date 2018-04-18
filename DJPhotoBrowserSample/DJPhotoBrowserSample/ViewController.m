@@ -231,6 +231,16 @@
     [self pauseCellWithIndex:self.lastOrCurrentPlayIndex];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    if (self.lastOrCurrentPlayIndex != -1)
+    {
+        [self playCellWithIndex:self.lastOrCurrentPlayIndex];
+    }
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CGFloat height = [[self.cellHeightArray objectAtIndex:indexPath.row] doubleValue] + 20;

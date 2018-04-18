@@ -590,6 +590,11 @@
         self.indexLabel.hidden = indexLabelHidden;
         self.saveButton.hidden = NO;
         
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidShow:)])
+        {
+            [self.delegate photoBrowserDidShow:self];
+        }
+
         return;
     }
     
@@ -610,6 +615,11 @@
         self.indexLabel.hidden = indexLabelHidden;
         self.saveButton.hidden = NO;
         
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidShow:)])
+        {
+            [self.delegate photoBrowserDidShow:self];
+        }
+
         return;
     }
 
@@ -650,6 +660,11 @@
     if ([self.delegate respondsToSelector:@selector(photoBrowser:didScrollToIndex:)])
     {
         [self.delegate photoBrowser:self didScrollToIndex:self.currentImageIndex];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(photoBrowserDidShow:)])
+    {
+        [self.delegate photoBrowserDidShow:self];
     }
 }
 
@@ -783,6 +798,11 @@
             [self.contentView removeFromSuperview];
         }
         
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidHide:)])
+        {
+            [self.delegate photoBrowserDidHide:self];
+        }
+
         return;
     }
     
@@ -791,6 +811,29 @@
     
     CGFloat tempImageSizeH = tempImageView.image.size.height;
     CGFloat tempImageSizeW = tempImageView.image.size.width;
+    if (tempImageSizeH == 0 || tempImageSizeW == 0)
+    {
+        self.backgroundColor = [UIColor clearColor];
+        self.contentView.backgroundColor = [UIColor clearColor];
+        self.window.windowLevel = bakWindowLevel;
+        
+        if (self.superview)
+        {
+            [self removeFromSuperview];
+        }
+        if (self.contentView.superview)
+        {
+            [self.contentView removeFromSuperview];
+        }
+        
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidHide:)])
+        {
+            [self.delegate photoBrowserDidHide:self];
+        }
+        
+        return;
+    }
+    
     CGFloat tempImageViewH = (tempImageSizeH * UI_SCREEN_WIDTH)/tempImageSizeW;
     
     CGRect targetTempRect;
@@ -830,6 +873,11 @@
             [tempImageView removeFromSuperview];
         }
     }];
+    
+    if ([self.delegate respondsToSelector:@selector(photoBrowserDidHide:)])
+    {
+        [self.delegate photoBrowserDidHide:self];
+    }
 }
 
 @end

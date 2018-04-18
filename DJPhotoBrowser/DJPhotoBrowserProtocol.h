@@ -28,8 +28,14 @@
 @protocol DJPhotoBrowserDelegate <NSObject>
 
 @optional
+// 显示
+- (void)photoBrowserDidShow:(DJPhotoBrowser *)browser;
+// 隐藏
+- (void)photoBrowserDidHide:(DJPhotoBrowser *)browser;
+
 // 滚动
 - (void)photoBrowser:(DJPhotoBrowser *)browser didScrollToIndex:(NSUInteger)index;
+
 // 删除图片
 - (void)photoBrowser:(DJPhotoBrowser *)browser deleteImageAtIndex:(NSUInteger)index;
 

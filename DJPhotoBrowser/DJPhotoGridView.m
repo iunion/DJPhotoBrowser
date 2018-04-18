@@ -25,7 +25,9 @@
     DJPhotoBrowserDelegate,
     DJPhotoBrowserDataSource
 >
-
+{
+    BOOL needPlayGif;
+}
 @property (nonatomic, weak) DJPhotoBrowser *photoBrowser;
 
 @property (nonatomic, strong) NSMutableArray *imageViewArray;
@@ -121,7 +123,6 @@
     self.imageBtnArray = [NSMutableArray arrayWithCapacity:0];
 
     self.previewGifItemArray = [NSMutableArray arrayWithCapacity:0];
-
 
     // 清除图片缓存，便于测试
     [[SDWebImageManager sharedManager].imageCache clearDiskOnCompletion:nil];
@@ -342,6 +343,7 @@
             {
                 break;
             }
+            item = nil;
         }
     }
     else
@@ -354,6 +356,7 @@
                 break;
             }
             self.playingGifIndex = (self.playingGifIndex+1) % self.previewGifItemArray.count;
+            item = nil;
         }
     }
 
@@ -433,6 +436,24 @@
 
 #pragma mark -
 #pragma mark DJPhotoBrowserDelegate
+
+- (void)photoBrowserDidShow:(DJPhotoBrowser *)browser
+{
+    NSLog(@"photoBrowserDidShow");
+    
+    needPlayGif = self.isPlayGif;
+    [self gifPause];
+}
+
+- (void)photoBrowserDidHide:(DJPhotoBrowser *)browser
+{
+    NSLog(@"photoBrowserDidHide");
+    if (needPlayGif)
+    {
+        needPlayGif = NO;
+        [self gifPlay];
+    }
+}
 
 // 滚动
 - (void)photoBrowser:(DJPhotoBrowser *)browser didScrollToIndex:(NSUInteger)index
